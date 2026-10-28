@@ -1,5 +1,5 @@
 // La Villa · Mantenimiento — service worker mínimo (hace la página instalable como app)
-var CACHE = 'lavilla-mtto-v1';
+var CACHE = 'lavilla-mtto-v2';
 var ARCHIVOS = ['./', './index.html', './manifest.webmanifest', './icon-180.png', './icon-192.png', './icon-512.png'];
 self.addEventListener('install', function (e) {
   e.waitUntil(caches.open(CACHE).then(function (c) { return c.addAll(ARCHIVOS); }).then(function () { return self.skipWaiting(); }));
