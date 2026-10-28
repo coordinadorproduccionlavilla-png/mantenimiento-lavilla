@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mantenimiento La Villa</title>
+<meta name="apple-mobile-web-app-title" content="Mantenimiento">
+<meta name="application-name" content="Mantenimiento La Villa">
+<meta name="theme-color" content="#1F3A5F">
+<meta name="robots" content="noindex, nofollow">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="manifest" href="manifest.webmanifest">
+<style>
+  body{margin:0;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;
+       background:linear-gradient(135deg,#1F3A5F,#16294A);color:#fff;font-family:-apple-system,Roboto,Arial,sans-serif;text-align:center;padding:24px;box-sizing:border-box}
+  img{width:120px;height:120px;border-radius:28px}
+  h1{font-size:22px;margin:0}
+  a{display:inline-block;background:#F5A800;color:#1A1A1A;font-weight:800;text-decoration:none;padding:16px 28px;border-radius:16px;font-size:18px}
+  button{display:none;background:#fff;color:#1F3A5F;font-weight:800;border:0;padding:16px 28px;border-radius:16px;font-size:18px}
+  p{font-size:14px;opacity:.9;max-width:320px;line-height:1.4;margin:0}
+</style>
+</head>
+<body>
+  <img src="icon-180.png" alt="Mantenimiento La Villa">
+  <h1>La Villa · Mantenimiento</h1>
+  <a id="ir" href="#">Entrar</a>
+  <button id="instalar">📲 Instalar en este celular</button>
+  <p id="ayuda">Abriendo…</p>
+<script>
+  // Enlace de la aplicación (Google Apps Script). Si se crea una implementación nueva, cambiar solo esta línea.
+  var APP = 'https://script.google.com/macros/s/AKfycbwiXyMgXNgaZvubeUNTzDsDlgrQvZ9fETzzHiDlXUpqz5C0zqtEQpA7GT_jz2THdEsT/exec';
+
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(function () {});
+
+  // Pasa a la app el equipo y la clave que vienen en el QR (?eq=LV-XXX-NN&k=XXXXXX).
+  var q = new URLSearchParams(location.search);
+  var eq = (q.get('eq') || '').toUpperCase(), k = (q.get('k') || '').toUpperCase();
+  var destino = APP;
+  if (/^LV-[A-Z]{3}-\d{2}$/.test(eq)) destino += '?eq=' + encodeURIComponent(eq) + (/^[A-Z0-9]{6}$/.test(k) ? '&k=' + encodeURIComponent(k) : '');
+  document.getElementById('ir').href = destino;
+
+  var aviso = null;
+  window.addEventListener('beforeinstallprompt', function (e) {
+    e.preventDefault(); aviso = e;
+    var b = document.getElementById('instalar'); b.style.display = 'inline-block';
+    b.onclick = function () { aviso.prompt(); aviso.userChoice.then(function () { b.style.display = 'none'; }); };
+  });
+  window.addEventListener('appinstalled', function () {
+    document.getElementById('ayuda').innerHTML = '✓ Listo. Ya puede abrir <b>Mantenimiento</b> desde la pantalla de inicio.';
+  });
+
+  // Viene de un QR o del ícono instalado: entra directo. Si se abrió en el navegador sin QR: muestra cómo instalar.
+  var instalado = window.navigator.standalone === true || window.matchMedia('(display-mode: standalone)').matches;
+  if (eq || instalado || location.hash === '#app') { location.replace(destino); }
+  else {
+    var ios = /iphone|ipad|ipod/i.test(navigator.userAgent);
+    document.getElementById('ayuda').innerHTML = ios
+      ? 'Para dejar el ícono en su celular: toque <b>Compartir</b> (cuadro con flecha) y luego <b>Agregar a inicio</b>.'
+      : 'Para dejar el ícono en su celular toque <b>Instalar en este celular</b>. Si no aparece: en Chrome, menú <b>⋮</b> → <b>Instalar app</b> o <b>Agregar a la pantalla principal</b>.';
+  }
+</script>
+</body>
+</html>
